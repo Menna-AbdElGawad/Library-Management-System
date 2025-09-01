@@ -1,17 +1,26 @@
-import mysql.connector
+from database.DBConnection import Connection
 from database.Models import Author
 
-class Author :
+class Authors(Connection) :
     def __init__(self):
-        
-        self.conn = mysql.connector.connect (
-            host = "127.0.0.1" ,
-            user = "root",
-            password = "Mm.261005",
-            database = "LibrarySystem"
+        super().__init__()
+
+    def get_author(self):
+        self.cursor.execute(
+            """
+            select author_id, author_name
+            from Author 
+            """
         )
 
-        self.cursor = self.conn.cursor()
-        self.category_map = dict()
+        authors = self.cursor.fetchall()
 
-    
+        print("\n===== Authors' Details =====")
+
+        for author in authors :
+            print(
+                f"""
+                Author ID: {author[0]}\n
+                Author Name: {author[1]}\n
+                """
+            )

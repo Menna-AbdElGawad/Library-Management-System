@@ -1,17 +1,26 @@
-import mysql.connector
+from database.DBConnection import Connection
 from database.Models import Category
 
-class Category :
+class Categories(Connection) :
     def __init__(self):
-        
-        self.conn = mysql.connector.connect (
-            host = "127.0.0.1" ,
-            user = "root",
-            password = "Mm.261005",
-            database = "LibrarySystem"
+        super().__init__()
+
+    def get_categories(self):
+        self.cursor.execute(
+            """
+            select category_id, category_name
+            from Category
+            """
         )
 
-        self.cursor = self.conn.cursor()
-        self.category_map = dict()
+        categories = self.cursor.fetchall()
 
-    
+        print("\n===== Categories =====")
+
+        for categorie in categories:
+            print(
+                f"""
+                Category ID: {categorie[0]}\n
+                Category Name: {categorie[1]}\n
+                """
+            )

@@ -54,14 +54,18 @@ class User :
 
 
 class Employee(User) :    
-    def __init__(self, user_id, first_name, last_name, username, password, email, phone_no, employee_id):
-        super().__init__(user_id, first_name, last_name, username, password, email, phone_no)
+    def __init__(self, user_id, first_name, last_name, username, password, email, phone_no, role, employee_id):
+        super().__init__(user_id, first_name, last_name, username, password, email, phone_no, role)
         self.employee_id = employee_id
 
+class Admin(User) :    
+    def __init__(self, user_id, first_name, last_name, username, password, email, phone_no, role, admin_id):
+        super().__init__(user_id, first_name, last_name, username, password, email, phone_no, role)
+        self.admin_id = admin_id
 
 class Customer(User) :
-    def __init__(self, user_id, first_name, last_name, username, password, email, phone_no, customer_id, address):
-        super().__init__(user_id, first_name, last_name, username, password, email, phone_no)
+    def __init__(self, user_id, first_name, last_name, username, password, email, phone_no, role, customer_id, address):
+        super().__init__(user_id, first_name, last_name, username, password, email, phone_no, role,)
         self.customer_id = customer_id
         self.address = address
 

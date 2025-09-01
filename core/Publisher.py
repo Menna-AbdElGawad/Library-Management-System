@@ -1,17 +1,25 @@
-import mysql.connector
+from database.DBConnection import Connection
 from database.Models import Publisher
 
-class Publisher :
+class Publishers(Connection) :
     def __init__(self):
-        
-        self.conn = mysql.connector.connect (
-            host = "127.0.0.1" ,
-            user = "root",
-            password = "Mm.261005",
-            database = "LibrarySystem"
+        super().__init__()
+
+    def get_publisher(self):
+        self.cursor.execute(
+            """
+            select publisher_id, publisher_name
+            from Publisher 
+            """
         )
 
-        self.cursor = self.conn.cursor()
-        self.category_map = dict()
+        publishers = self.cursor.fetchall()
 
-    
+        print("\n===== Publishers' Details =====")
+        for publisher in publishers :
+            print(
+                f"""
+                Publisher ID: {publisher[0]}\n
+                Publisher Name: {publisher[1]}\n
+                """
+            )
