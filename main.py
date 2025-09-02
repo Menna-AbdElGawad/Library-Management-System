@@ -1,14 +1,15 @@
 from services.Authentication import Authentication
 from core.Policies import Policies
+import sys
 
-print("Welcome to Library Mangement System!")
-print("====================================")
+print("===== Welcome to Library Mangement System! =====")
+print("================================================")
 
 def main():
     while True :
         print("\n===== Main Menu =====")
         print("------")
-        print("1. Sign Up (as a Customer)")
+        print("1. Sign Up (only as a Customer)")
         print("2. Log in")
         print("3. Policies")
         print("0. Exit\n")
@@ -17,7 +18,7 @@ def main():
 
         if choice == 0 :
             print("GoodBye:)")
-            break
+            sys.exit()
 
         elif choice == 1 :
             auth = Authentication()

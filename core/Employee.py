@@ -1,21 +1,78 @@
 from database.DBConnection import Connection
 from database.Models import Employee
+import sys
 
 class EmployeeFeatures(Connection, Employee) :
     def __init__(self, user_id, first_name, last_name, username, password, email, phone_no, role, employee_id):
         Connection.__init__(self) 
         Employee.__init__(self, user_id, first_name, last_name, username, password, email, phone_no, role, employee_id)
+    
+    def check_isbn(self, isbn):
+        self.cursor.execute(
 
+            """
+            select isbn
+            from Book
+            """
+        )
+
+        books = self.cursor.fetchall()
+
+        for book in books:
+            if isbn == book[0]:
+                print("ISBN is already exists!")
+                return
+            else:
+                if len(isbn) == 10:
+                    total = 0
+                    for i in range(9):
+                        if not isbn[i].isdigit():
+                            return False
+                        total += (10 - i) * int(isbn[i])
+
+                    check = isbn[9]
+                    if check == 'X':
+                        total += 10
+                    elif check.isdigit():
+                        total += int(check)
+                    else:
+                        return False
+                    return total % 11 == 0
+
+                elif len(isbn) == 13:
+                    if not isbn.isdigit():
+                        return False
+                    total = 0
+                    for i in range(12):
+                        n = int(isbn[i])
+                        if i % 2 == 0:
+                            total += n
+                        else:
+                            total += n * 3
+
+                    check_digit = (10 - (total % 10)) % 10
+                    return check_digit == int(isbn[12])
+
+                else:
+                    return False
+        
     def add_book(self) :
-        title = input(("Please Enter Book Title:"))
-        isbn = input(("Please Enter ISBN:"))
-        language = input("Please Enter Language of the book:")
-        no_copies = int(input("Please Enter number of copies:"))
-        no_pages = int(input("Please Enter number of pages:"))
-        released_year = int(input("Please Enter Released Year:"))
-        category = input(("Please Enter Category Type:"))
-        publisher = input(("Please Enter Publisher:"))
-        author = input(("Please Enter Author:"))
+        title = input(("Please Enter Book Title: "))
+        isbn = input(("Please Enter ISBN: "))
+
+        if not self.check_isbn(isbn):
+            print("Invalid ISBN. Book not added.")
+            return
+    
+        language = input("Please Enter Language of the book: ")
+        no_copies = int(input("Please Enter number of copies: "))
+        no_pages = int(input("Please Enter number of pages: "))
+        released_year = int(input("Please Enter Released Year: "))
+        category = input(("Please Enter Category Type: "))
+        publisher = input(("Please Enter Publisher: "))
+        author = input(("Please Enter Author: "))
+
+        self.check_isbn(isbn)
 
         self.cursor.execute("select category_id from Category where category_name = %s", (category,))
         result = self.cursor.fetchone()
@@ -66,19 +123,33 @@ class EmployeeFeatures(Connection, Employee) :
         print(f"Book {title} added Successfully!")
 
     def remove_book(self):
-        title = input(("Please Enter Book Title:"))
+        title = input(("Please Enter Book Title: "))
+        try:
+            self.cursor.execute(
+                """
+                delete from BookAuthor
+                where book_id = (
+                    select book_id 
+                    from Book
+                    where title = %s
+                )
+                """ , (title,)
+            )
 
-        self.cursor.execute("select title from Book where title = %s", (title,))
-        book = self.cursor.fetchone()
+            self.cursor.execute("select title from Book where title = %s", (title,)) 
+            book = self.cursor.fetchone()
 
-        if book :
-            self.cursor.execute("delete from Book where title = %s", (title,))
-            self.conn.commit()
-            print("Book is removed Successfully!")
+            if book :
+                self.cursor.execute("delete from Book where title = %s", (title,))
+                self.conn.commit()
+                print("Book is removed Successfully!")
 
-        else :
-            print("Book is not Found in the Database.")
-            return
+            else :
+                print("Book is not Found in the Database.")
+                return
+            
+        except Exception as e:
+            print(f"Error while removing book {title}: ", e)
         
     def edit_book(self):
         while True:
@@ -96,29 +167,26 @@ class EmployeeFeatures(Connection, Employee) :
                 self.update_book_field("title", "Book Title")
 
             elif choice == 2:
-                self.update_book_field("isbn", "Book ISBN")
-
-            elif choice == 3:
                 self.update_book_field("no_of_copies", "Number of Copies")
 
-            elif choice == 4:
+            elif choice == 3:
                 self.update_book_field("language", "Language")
 
-            elif choice == 5:
+            elif choice == 4:
                 self.update_book_field("no_of_pages", "Number of Pages")
 
-            elif choice == 6:
+            elif choice == 5:
                 self.update_book_field("released_year", "Released Year")
 
-            elif choice == 7:
+            elif choice == 6:
                 title = input("Please Enter the Book Title: ")
                 self.update_publisher(title)
 
-            elif choice == 8:
+            elif choice == 7:
                 title = input("Please Enter the Book Title: ")
                 self.update_author(title)
 
-            elif choice == 9:
+            elif choice == 8:
                 title = input("Please Enter the Book Title: ")
                 self.update_category(title)
 
@@ -151,7 +219,7 @@ class EmployeeFeatures(Connection, Employee) :
             print("Book not found!\n")
 
     def update_publisher(self, title):
-        new_publisher = input("Please Enter the new Publisher name:")
+        new_publisher = input("Please Enter the new Publisher name: ")
 
         self.cursor.execute(
             """
@@ -188,7 +256,7 @@ class EmployeeFeatures(Connection, Employee) :
         print(f"Publisher updated successfully for {title} → {new_publisher}")
 
     def update_author(self, title):
-        new_author = input("Please Enter the new Author name:")
+        new_author = input("Please Enter the new Author name: ")
 
         self.cursor.execute(
             """
@@ -225,7 +293,7 @@ class EmployeeFeatures(Connection, Employee) :
         print(f"Author updated successfully for {title} → {new_author}")
 
     def update_category(self, title):
-        new_category = input("Please Enter the new Category name:")
+        new_category = input("Please Enter the new Category name: ")
 
         self.cursor.execute(
             """
@@ -265,16 +333,15 @@ class EmployeeFeatures(Connection, Employee) :
         print("What do you want to edit?")
         print("=========================")
         print("1. Book Title")
-        print("2. ISBN")
-        print("3. Number of Copies")
-        print("4. Language")
-        print("5. Number of Pages")
-        print("6. Released Year")
-        print("7. Publisher")
-        print("8. Author")
-        print("9. Category")
+        print("2. Number of Copies")
+        print("3. Language")
+        print("4. Number of Pages")
+        print("5. Released Year")
+        print("6. Publisher")
+        print("7. Author")
+        print("8. Category")
         print("0. Return to Main Menu")
-
+        print("=========================\n")
 
     def employee_menu(self) :
         while True :
@@ -284,12 +351,13 @@ class EmployeeFeatures(Connection, Employee) :
             print("2. Edit books") 
             print("3. Remove books") 
             print("0. Exit") 
+            print("=============================\n")
 
-            choice = int(input("Please Enter your Choice:"))
+            choice = int(input("Please Enter your Choice: "))
 
             if choice == 0:
                 print("GoodBye:)")
-                break
+                sys.exit()           
             elif choice == 1:
                 self.add_book()
             elif choice == 2:   

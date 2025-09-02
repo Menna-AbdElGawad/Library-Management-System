@@ -1,5 +1,6 @@
 from database.DBConnection import Connection
 from database.Models import Admin
+import sys
 
 class AdminFeatures(Connection):
     def __init__(self):
@@ -213,7 +214,7 @@ class AdminFeatures(Connection):
 
             if choice == 0:
                 print("GoodBye:)")
-                break
+                sys.exit()
 
             elif choice == 1:
                 self.add_emp()

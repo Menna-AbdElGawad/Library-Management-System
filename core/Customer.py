@@ -1,6 +1,7 @@
 from database.DBConnection import Connection
 from core.Borrow import BorrowModel
 from datetime import datetime
+import sys
 
 class CustomerFeatures(Connection) :
     def __init__(self):
@@ -167,7 +168,7 @@ class CustomerFeatures(Connection) :
             
             if choice == 0:
                 print("GoodBye:)")
-                break
+                sys.exit()
             
             elif choice == 1:
                 self.search_book()
