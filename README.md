@@ -1,6 +1,5 @@
 # 📚 Library Management System
 
-![Library Image]("C:\Users\user\Desktop\Library.jpg")  
 *A simple Library Management System implemented with SQL.*
 
 ---
